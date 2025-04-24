@@ -9,11 +9,8 @@ services:
     depends_on:
       model-download:
         condition: service_completed_successfully
-    # Change user to the one that will run the container
     user: ${PUID}:${PGID}
     group_add:
-      # Change this number to match your "render" host group id
-      # You can get the id number by running: getent group render
       - ${RENDER_PGID}
     security_opt:
       - no-new-privileges:true
@@ -40,7 +37,6 @@ services:
         condition: service_healthy
     security_opt:
       - no-new-privileges:true
-    # Change user to the one that will run the container
     user: ${PUID}:${PGID}
     ports:
       - 7891:7891

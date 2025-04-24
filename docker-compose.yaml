@@ -21,8 +21,6 @@ services:
       - type: bind
         source: /path/to/models
         target: /models
-    networks:
-      whisper: {}
     hostname: whispercpp
     devices:
       - /dev/dri:/dev/dri
@@ -44,8 +42,6 @@ services:
       - no-new-privileges:true
     # Change user to the one that will run the container
     user: 1000:1000
-    networks:
-      whisper: {}
     ports:
       - 7891:7891
     command: script/run --uri tcp://0.0.0.0:7891 --api http://whispercpp:8910/inference
@@ -60,9 +56,9 @@ services:
         source: /path/to/models
         target: /models
     restart: no
-    networks:
-      whisper: {}
     environment:
       - MODEL=${WHISPER_MODEL}
+
 networks:
-  whisper: {}
+  default:
+    name: whisper

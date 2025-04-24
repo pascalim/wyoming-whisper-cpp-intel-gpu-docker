@@ -16,13 +16,11 @@ services:
     security_opt:
       - no-new-privileges:true
     environment:
-      - SYCL_CACHE_PERSISTENT=1
-      - SYCL_CACHE_DIR=/models/sycl_cache
-      - SYCL_DEVICE_ALLOWLIST=BackendName:level_zero
+      SYCL_CACHE_PERSISTENT: '1'
+      SYCL_CACHE_DIR: /models/sycl_cache
+      SYCL_DEVICE_ALLOWLIST: 'BackendName:level_zero'
     volumes:
-      - type: bind
-        source: /path/to/models
-        target: /models
+      - whisper-models:/models
     devices:
       - /dev/dri:/dev/dri
     command: build/bin/whisper-server -l ${WHISPER_LANG} -bs ${WHISPER_BEAM_SIZE} -m /models/ggml-${WHISPER_MODEL}.bin --host 0.0.0.0 --port 8910 --suppress-nst --prompt "${WHISPER_PROMPT}"
@@ -49,11 +47,18 @@ services:
       - no-new-privileges:true
     user: ${PUID}:${PGID}
     environment:
-      - MODEL=${WHISPER_MODEL}
+      MODEL: ${WHISPER_MODEL}
     volumes:
-      - type: bind
-        source: /path/to/models
-        target: /models
+      - whisper-models:/models
+
+volumes:
+  whisper-models:
+    name: whisper-models
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${WHISPER_MODELS_DIR}
 
 networks:
   default:

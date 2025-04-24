@@ -10,11 +10,11 @@ services:
       model-download:
         condition: service_completed_successfully
     # Change user to the one that will run the container
-    user: 1000:1000
+    user: ${PUID}:${PGID}
     group_add:
       # Change this number to match your "render" host group id
       # You can get the id number by running: getent group render
-      - "105"
+      - ${RENDER_PGID}
     security_opt:
       - no-new-privileges:true
     volumes:
@@ -41,14 +41,14 @@ services:
     security_opt:
       - no-new-privileges:true
     # Change user to the one that will run the container
-    user: 1000:1000
+    user: ${PUID}:${PGID}
     ports:
       - 7891:7891
     command: script/run --uri tcp://0.0.0.0:7891 --api http://whispercpp:8910/inference
   model-download:
     security_opt:
       - no-new-privileges:true
-    user: 1000:1000
+    user: ${PUID}:${PGID}
     build:
       context: ./model-download
     volumes:

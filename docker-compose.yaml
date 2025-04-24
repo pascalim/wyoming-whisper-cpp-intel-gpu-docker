@@ -5,6 +5,7 @@ services:
       args:
         - WHISPER_CPP_VERSION=1.7.4
         - BUILD_FROM=intel/oneapi:2025.0.1-0-devel-ubuntu24.04
+    hostname: whispercpp
     restart: unless-stopped
     depends_on:
       model-download:
@@ -14,17 +15,16 @@ services:
       - ${RENDER_PGID}
     security_opt:
       - no-new-privileges:true
-    volumes:
-      - type: bind
-        source: /path/to/models
-        target: /models
-    hostname: whispercpp
-    devices:
-      - /dev/dri:/dev/dri
     environment:
       - SYCL_CACHE_PERSISTENT=1
       - SYCL_CACHE_DIR=/models/sycl_cache
       - SYCL_DEVICE_ALLOWLIST=BackendName:level_zero
+    volumes:
+      - type: bind
+        source: /path/to/models
+        target: /models
+    devices:
+      - /dev/dri:/dev/dri
     command: build/bin/whisper-server -l ${WHISPER_LANG} -bs ${WHISPER_BEAM_SIZE} -m /models/ggml-${WHISPER_MODEL}.bin --host 0.0.0.0 --port 8910 --suppress-nst --prompt "${WHISPER_PROMPT}"
   wyoming-api:
     build:
@@ -42,18 +42,18 @@ services:
       - 7891:7891
     command: script/run --uri tcp://0.0.0.0:7891 --api http://whispercpp:8910/inference
   model-download:
+    build:
+      context: ./model-download
+    restart: no
     security_opt:
       - no-new-privileges:true
     user: ${PUID}:${PGID}
-    build:
-      context: ./model-download
+    environment:
+      - MODEL=${WHISPER_MODEL}
     volumes:
       - type: bind
         source: /path/to/models
         target: /models
-    restart: no
-    environment:
-      - MODEL=${WHISPER_MODEL}
 
 networks:
   default:
